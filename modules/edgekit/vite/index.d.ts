@@ -1,3 +1,5 @@
+/// <reference types="./ambient" />
+
 export * from './mod.js';
 
 export interface PluginOptions {

@@ -1,4 +1,4 @@
-/// <reference types="./ambient" />
+/// <reference types="vite/client" />
 
 export * from './mod.js';
 

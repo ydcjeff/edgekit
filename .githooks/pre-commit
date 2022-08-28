@@ -3,4 +3,3 @@
 set -e
 
 pnpm run fmt
-pnpm run lint
