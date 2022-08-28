@@ -1,3 +1,4 @@
+/// <reference types="./ambient" />
 /// <reference types="vite/client" />
 
 export * from './mod.js';
@@ -26,8 +27,8 @@ export interface Manifest {
 	_tmpl: (
 		body: string,
 		head: string,
-		html_attrs: string = '',
-		body_attrs: string = '',
+		html_attrs?: string,
+		body_attrs?: string,
 	) => string;
 }
 

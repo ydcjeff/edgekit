@@ -39,7 +39,7 @@ export function edgekit(options) {
 	let ec;
 
 	/** @type {Record<string, string>} */
-	let client_input;
+	const client_input = {};
 
 	return {
 		name: 'vite-plugin-edgekit',
@@ -53,14 +53,12 @@ export function edgekit(options) {
 			const namespace = build?.assetsDir || '_edk';
 
 			if (!ssr) {
-				opts.entry_client = get_entry(path.resolve(root, opts.entry_client))
+				opts.entry_client = get_entry(path.resolve(root, opts.entry_client));
 				ec = path
 					.basename(opts.entry_client)
 					.replace(path.extname(opts.entry_client), '');
-				client_input = {
-					__edgekit_html__: 'index.html',
-					[ec]: opts.entry_client,
-				};
+				client_input.__edgekit_html__ = 'index.html';
+				client_input[ec] = opts.entry_client;
 			} else {
 				opts.entry_server = get_entry(path.resolve(root, opts.entry_server));
 			}
@@ -71,7 +69,8 @@ export function edgekit(options) {
 
 				build: {
 					assetsDir: namespace,
-					manifest: ssr ? false : '.vite/manifest.json',
+					manifest: ssr ? false : 'manifest.json',
+					ssrManifest: ssr ? false : 'ssr-manifest.json',
 					outDir: dist,
 					polyfillModulePreload: false,
 					rollupOptions: {
@@ -80,14 +79,17 @@ export function edgekit(options) {
 								? path.join(_dirname, opts.runtime, 'deploy')
 								: opts.entry_server
 							: client_input,
-							output: {
+						output: {
 							entryFileNames: ssr
 								? `[name].js`
 								: path.posix.join(namespace, `[name]-[hash].js`),
 							chunkFileNames: ssr
 								? `chunks/[name].js`
 								: path.posix.join(namespace, `c/[name]-[hash].js`), // c for chunks
-							assetFileNames: path.posix.join(namespace,`a/[name]-[hash].[ext]`), // a for assets
+							assetFileNames: path.posix.join(
+								namespace,
+								`a/[name]-[hash].[ext]`, // a for assets
+							),
 						},
 						onwarn(warning, warn) {
 							if (!warning.message.includes('__edgekit_html__')) {
@@ -183,7 +185,7 @@ export function edgekit(options) {
 				return stringify_manifest(
 					template,
 					vite_config.build.assetsDir,
-					path.resolve(vite_config.base, opts.entry_client),
+					opts.entry_client,
 				);
 			}
 		},

@@ -23,8 +23,8 @@ export function stringify_manifest(template, namespace, ec) {
 		`export const manifest = {
 			namespace: ${s(namespace)},
 			_ec: ${s(ec)},
-			_tmpl: ${tmpl}
-		}`
+			_tmpl: ${tmpl},
+		};`
 	);
 }
 

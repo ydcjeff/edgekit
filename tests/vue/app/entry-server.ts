@@ -22,7 +22,7 @@ export const handler = create_handler(routes, async (event, mod) => {
 	if (mod) return respond_data(event, mod);
 
 	// create vue on server side
-	const [app, router, head_client, moku] = create_uni_app();
+	const [app, router, head_client] = create_uni_app();
 
 	// navigate to a new url and wait for it
 	await router.push(event.url.pathname);
@@ -37,5 +37,5 @@ export const handler = create_handler(routes, async (event, mod) => {
 	// get route config for the url, this also needs to be after `renderToString`
 	// const { hydrate, csp } = get_route_config(router);
 
-	return respond_html({ manifest, body, head, hydrate: true, data: moku.data });
+	return respond_html({ manifest, body, head, hydrate: true });
 });
