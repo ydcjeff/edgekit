@@ -19,9 +19,7 @@ import { valid_id } from './utils.js';
  * @param {import('./index').StartClientFn} fn
  */
 export function start_client(import_meta_url, fn) {
-	// TODO: url don't respect CDN url for now
-	const url = import_meta_url.replace(location.origin, '');
-	const id = valid_id(url);
+	const id = valid_id(import_meta_url);
 	const el = document.getElementById(id);
 	if (!el) throw new Error(`target element with id ${id} not found`);
 	const tc = el.lastElementChild?.textContent;
