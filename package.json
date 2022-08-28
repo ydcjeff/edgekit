@@ -1,0 +1,30 @@
+{
+	"name": "edgekit-monorepo",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"prettier": "@ydcjeff/configs/prettier",
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "1.0.1",
+		"@types/node": "18.7.3",
+		"@vitejs/plugin-vue": "3.0.3",
+		"@vueuse/head": "0.7.9",
+		"@ydcjeff/configs": "0.4.13",
+		"edgekit": "workspace:*",
+		"prettier": "2.7.1",
+		"prettier-plugin-svelte": "2.7.0",
+		"svelte": "3.49.0",
+		"svelte-ruta": "0.0.6",
+		"vite": "3.0.5",
+		"vite-plugin-inspect": "0.6.0",
+		"vitest": "0.21.1",
+		"vue": "3.2.37",
+		"vue-router": "4.1.3"
+	},
+	"scripts": {
+		"test-unit": "vitest --dir modules",
+		"fmt": "prettier -w --ignore-unknown --ignore-path .gitignore --plugin prettier-plugin-svelte .",
+		"fmt-check": "prettier -c --ignore-unknown --ignore-path .gitignore --plugin prettier-plugin-svelte .",
+		"prepare": "git config core.hooksPath .githooks"
+	}
+}
