@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { get_request, install_polyfills, set_response } from 'edgekit/node';
+import { get_request, install_polyfills, set_response } from '../node/mod.js';
 import { get_entry, stringify_manifest } from './utils.js';
 
 /** @typedef {import('./index').PluginOptions} PluginOptions */
@@ -46,33 +46,33 @@ export function edgekit(options) {
 
 		config({ build, publicDir, root = process.cwd() }) {
 			const ssr = !!build?.ssr;
-			const outDir = path.posix.join(
+			const dist = path.posix.join(
 				build?.outDir || 'dist',
 				ssr ? 'server' : 'client',
 			);
-			const assetsDir = build?.assetsDir || '_edk';
-
-			const entry_client = get_entry(path.resolve(root, opts.entry_client));
-			opts.entry_server = get_entry(path.resolve(root, opts.entry_server));
+			const namespace = build?.assetsDir || '_edk';
 
 			if (!ssr) {
+				opts.entry_client = get_entry(path.resolve(root, opts.entry_client))
 				ec = path
-					.basename(entry_client)
-					.replace(path.extname(entry_client), '');
+					.basename(opts.entry_client)
+					.replace(path.extname(opts.entry_client), '');
 				client_input = {
 					__edgekit_html__: 'index.html',
-					[ec]: entry_client,
+					[ec]: opts.entry_client,
 				};
+			} else {
+				opts.entry_server = get_entry(path.resolve(root, opts.entry_server));
 			}
 
 			return {
 				appType: 'custom',
-				base: './', // Vite resolves to `/` in ssr
+				base: './', // Vite resolves to `/` in ssr and dev
 
 				build: {
-					assetsDir,
-					manifest: ssr ? false : 'client.json',
-					outDir,
+					assetsDir: namespace,
+					manifest: ssr ? false : '.vite/manifest.json',
+					outDir: dist,
 					polyfillModulePreload: false,
 					rollupOptions: {
 						input: ssr
@@ -80,23 +80,19 @@ export function edgekit(options) {
 								? path.join(_dirname, opts.runtime, 'deploy')
 								: opts.entry_server
 							: client_input,
-						output: {
+							output: {
 							entryFileNames: ssr
 								? `[name].js`
-								: path.posix.join(assetsDir, `[name]-[hash].js`),
+								: path.posix.join(namespace, `[name]-[hash].js`),
 							chunkFileNames: ssr
 								? `chunks/[name].js`
-								: path.posix.join(assetsDir, `c/[name]-[hash].js`), // c for chunks
-							assetFileNames: path.posix.join(
-								assetsDir,
-								`a/[name]-[hash].[ext]`,
-							), // a for assets
+								: path.posix.join(namespace, `c/[name]-[hash].js`), // c for chunks
+							assetFileNames: path.posix.join(namespace,`a/[name]-[hash].[ext]`), // a for assets
 						},
 						onwarn(warning, warn) {
-							if (warning.message.includes('__edgekit_html__')) {
-								return;
+							if (!warning.message.includes('__edgekit_html__')) {
+								warn(warning);
 							}
-							warn(warning);
 						},
 					},
 				},
@@ -111,7 +107,7 @@ export function edgekit(options) {
 					alias: ssr
 						? {
 								'edgekit:entry-server': opts.entry_server,
-								'edgekit:manifest': path.join(outDir, '../.vite/manifest.js'),
+								'edgekit:manifest': path.join(dist, '../.vite/manifest.js'),
 						  }
 						: undefined,
 				},
