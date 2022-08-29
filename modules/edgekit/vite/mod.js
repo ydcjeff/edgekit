@@ -8,6 +8,8 @@ import { get_entry, stringify_manifest } from './utils.js';
 
 const _dirname = path.dirname(fileURLToPath(import.meta.url));
 
+export { edgekit_netlify } from './netlify/vite_plugin.js';
+
 /**
  * @param {PluginOptions} [options]
  * @returns {import('vite').Plugin}
@@ -77,7 +79,7 @@ export function edgekit(options) {
 						input: ssr
 							? opts.runtime !== 'node'
 								? path.join(_dirname, opts.runtime, 'deploy')
-								: { index: opts.entry_server }
+								: { main: opts.entry_server }
 							: client_input,
 						output: {
 							entryFileNames: ssr
@@ -179,7 +181,7 @@ export function edgekit(options) {
 
 			const entry_server = path.join(
 				vite_config.build.outDir,
-				'../server/index.js', // TODO: avoid this hardcode
+				'../server/main.js', // TODO: avoid this hardcode
 			);
 			const { handler } = await import(pathToFileURL(entry_server).href);
 
