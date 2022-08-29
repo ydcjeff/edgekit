@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { get_request, install_polyfills, set_response } from '../node/mod.js';
 import { get_entry, stringify_manifest } from './utils.js';
 
@@ -77,7 +77,7 @@ export function edgekit(options) {
 						input: ssr
 							? opts.runtime !== 'node'
 								? path.join(_dirname, opts.runtime, 'deploy')
-								: opts.entry_server
+								: { index: opts.entry_server }
 							: client_input,
 						output: {
 							entryFileNames: ssr
@@ -169,6 +169,41 @@ export function edgekit(options) {
 						server.ssrFixStacktrace(e);
 						res.statusCode = 500;
 						res.end(e.stack);
+					}
+				});
+			};
+		},
+
+		async configurePreviewServer(server) {
+			install_polyfills();
+
+			const entry_server = path.join(
+				vite_config.build.outDir,
+				'../server/index.js', // TODO: avoid this hardcode
+			);
+			const { handler } = await import(pathToFileURL(entry_server).href);
+
+			return () => {
+				server.middlewares.use(async (req, res) => {
+					try {
+						if (!req.url || !req.method) throw new Error('incomplete request');
+						const protocol = vite_config.preview.https ? 'https' : 'http';
+						const origin = protocol + '://' + req.headers.host;
+
+						const request = get_request(origin, req);
+						const resp = await handler({
+							request,
+							url: new URL(request.url),
+							seg: {},
+							platform: {},
+						});
+
+						if (resp) {
+							set_response(res, resp);
+						}
+					} catch (/** @type {any} */ e) {
+						res.statusCode = e.status || 400;
+						res.end(e.reason || 'invalid requst body');
 					}
 				});
 			};
