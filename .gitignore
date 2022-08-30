@@ -108,8 +108,9 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Platform files
+# EdgeKit server build output
 .netlify
 .vercel
 .deno
 .cloudflare
+.node
