@@ -42,6 +42,18 @@ export function edgekit(options) {
 
 			if (command === 'build') {
 				const ssr = !!build?.ssr;
+				const assetsDir = build?.assetsDir || '_edk';
+
+				const output = {
+					entryFileNames: ssr
+						? `[name].js`
+						: path.posix.join(assetsDir, `[name]-[hash].js`),
+					chunkFileNames: ssr
+						? `chunks/[name].js`
+						: path.posix.join(assetsDir, `c/[name]-[hash].js`), // c for chunks
+					// this is required to set to match client/server assets build
+					assetFileNames: path.posix.join(assetsDir, `a/[name]-[hash].[ext]`), // a for assets
+				};
 
 				if (ssr) {
 					entry_server_filename = path
@@ -51,10 +63,11 @@ export function edgekit(options) {
 					return {
 						publicDir: false,
 						build: {
-							assetsDir: 'chunks',
+							assetsDir,
 							outDir: '.node',
 							rollupOptions: {
 								input: opts.entry_server,
+								output,
 							},
 						},
 						define: {
@@ -72,7 +85,6 @@ export function edgekit(options) {
 					entry_client_filename = path
 						.basename(opts.entry_client)
 						.replace(path.extname(opts.entry_client), '');
-					const assetsDir = build?.assetsDir || '_edk';
 
 					return {
 						base: './',
@@ -83,20 +95,7 @@ export function edgekit(options) {
 									__edgekit_html__: 'index.html',
 									[entry_client_filename]: opts.entry_client,
 								},
-								output: {
-									entryFileNames: path.posix.join(
-										assetsDir,
-										`[name]-[hash].js`,
-									),
-									chunkFileNames: path.posix.join(
-										assetsDir,
-										`c/[name]-[hash].js`, // c for chunks
-									),
-									assetFileNames: path.posix.join(
-										assetsDir,
-										`a/[name]-[hash].[ext]`, // a for assets
-									),
-								},
+								output,
 								onwarn(warning, warn) {
 									if (!warning.message.includes('__edgekit_html__')) {
 										warn(warning);
