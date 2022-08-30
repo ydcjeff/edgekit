@@ -274,3 +274,4 @@ export function edgekit(options) {
 
 export { edgekit_deno } from './deno/vite_plugin.js';
 export { edgekit_netlify } from './netlify/vite_plugin.js';
+export { edgekit_vercel } from './vercel/vite_plugin.js';
