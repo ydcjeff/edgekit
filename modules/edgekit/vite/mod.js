@@ -6,8 +6,6 @@ import { get_entry, mkdirp, stringify_manifest } from './utils.js';
 
 /** @typedef {import('./index').PluginOptions} PluginOptions */
 
-export { edgekit_netlify } from './netlify/vite_plugin.js';
-
 const DOT_EDGEKIT = 'node_modules/.edgekit/';
 const EDGEKIT_MANIFEST = DOT_EDGEKIT + 'manifest.mjs';
 
@@ -219,6 +217,7 @@ export function edgekit(options) {
 					template,
 					vite_config.build.assetsDir,
 					opts.entry_client,
+					vite_config.build.outDir,
 				);
 			}
 		},
@@ -264,6 +263,7 @@ export function edgekit(options) {
 							template,
 							vite_config.build.assetsDir,
 							entry_client_filename,
+							vite_config.build.outDir,
 						),
 						'utf-8',
 					);
@@ -272,3 +272,6 @@ export function edgekit(options) {
 		},
 	};
 }
+
+export { edgekit_deno } from './deno/vite_plugin.js';
+export { edgekit_netlify } from './netlify/vite_plugin.js';

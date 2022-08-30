@@ -14,6 +14,12 @@ export interface Manifest {
 	 */
 	namespace: string;
 	/**
+	 * Client build output directory. Defaults to Vite's `build.outDir`.
+	 *
+	 * @default `dist`
+	 */
+	client_outdir: string;
+	/**
 	 * entry client
 	 *
 	 * @internal

@@ -2,32 +2,21 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { is_server_build } from '../utils.js';
 
-const NETLIFY_EDGE_FN_DIR = '.netlify/edge-functions';
-const NETLIFY_EDGE_FN_MANIFEST = {
-	version: 1,
-	functions: [
-		{
-			function: 'main',
-			path: '/*',
-		},
-	],
-};
-
 const _dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @returns {import('vite').Plugin} */
-export function edgekit_netlify() {
+export function edgekit_deno() {
 	return {
-		name: 'edgekit:netlify',
+		name: 'edgekit:deno',
 		apply: is_server_build,
 
 		config() {
 			return {
 				build: {
-					outDir: NETLIFY_EDGE_FN_DIR,
+					outDir: '.deno',
 					rollupOptions: {
 						input: {
-							main: path.resolve(_dirname, 'edge.js'),
+							main: path.resolve(_dirname, 'deploy.js'),
 						},
 						output: {
 							inlineDynamicImports: true,
@@ -39,14 +28,6 @@ export function edgekit_netlify() {
 					target: 'webworker',
 				},
 			};
-		},
-
-		generateBundle() {
-			this.emitFile({
-				type: 'asset',
-				fileName: 'manifest.json',
-				source: JSON.stringify(NETLIFY_EDGE_FN_MANIFEST),
-			});
 		},
 	};
 }

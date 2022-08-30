@@ -16,12 +16,14 @@ const tmpl = (body = '', head = '', html_attrs = '', body_attrs = '') =>
  * @param {string} template
  * @param {string} namespace
  * @param {string} ec
+ * @param {string} client_outdir
  */
-export function stringify_manifest(template, namespace, ec) {
+export function stringify_manifest(template, namespace, ec, client_outdir) {
 	return (
 		`const tp = ${s(template)};\n` +
 		`export const manifest = {
 			namespace: ${s(namespace)},
+			client_outdir: ${s(client_outdir)},
 			_ec: ${s(ec)},
 			_tmpl: ${tmpl},
 		};`
