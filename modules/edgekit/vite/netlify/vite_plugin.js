@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { is_server_build } from '../utils.js';
 
 const NETLIFY_EDGE_FN_DIR = '.netlify/edge-functions';
 const NETLIFY_EDGE_FN_MANIFEST = {
@@ -18,7 +19,7 @@ const _dirname = path.dirname(fileURLToPath(import.meta.url));
 export function edgekit_netlify() {
 	return {
 		name: 'edgekit:netlify',
-		apply: ({ build }, { command }) => !!build?.ssr && command === 'build',
+		apply: is_server_build,
 
 		config() {
 			return {

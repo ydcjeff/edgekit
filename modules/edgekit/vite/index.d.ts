@@ -13,8 +13,4 @@ export interface PluginOptions {
 	 * @default './app/entry-server'
 	 */
 	entry_server?: string;
-	/**
-	 * Runtime platform for the server build.
-	 */
-	runtime?: 'cloudflare' | 'deno' | 'netlify' | 'node' | 'vercel';
 }

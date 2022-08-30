@@ -60,3 +60,21 @@ export function make_rollup_input(input) {
 		[basename]: get_entry(input),
 	};
 }
+
+/** @param {string} dir */
+export function mkdirp(dir) {
+	try {
+		fs.mkdirSync(dir, { recursive: true });
+	} catch (/** @type {any} */ e) {
+		if (e.code === 'EEXIST') return;
+		throw e;
+	}
+}
+
+/**
+ * @param {import('vite').UserConfig} config
+ * @param {import('vite').ConfigEnv} env
+ */
+export function is_server_build({ build }, { command }) {
+	return !!build?.ssr && command === 'build';
+}

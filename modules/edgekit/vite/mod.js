@@ -1,14 +1,15 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { get_request, install_polyfills, set_response } from '../node/mod.js';
-import { get_entry, stringify_manifest } from './utils.js';
+import { get_entry, mkdirp, stringify_manifest } from './utils.js';
 
 /** @typedef {import('./index').PluginOptions} PluginOptions */
 
-const _dirname = path.dirname(fileURLToPath(import.meta.url));
-
 export { edgekit_netlify } from './netlify/vite_plugin.js';
+
+const DOT_EDGEKIT = 'node_modules/.edgekit/';
+const EDGEKIT_MANIFEST = DOT_EDGEKIT + 'manifest.mjs';
 
 /**
  * @param {PluginOptions} [options]
@@ -19,15 +20,6 @@ export function edgekit(options) {
 	const opts = {
 		entry_client: './app/entry-client',
 		entry_server: './app/entry-server',
-		runtime: !!process.env.CF_PAGES
-			? 'cloudflare'
-			: !!process.env.DENO
-			? 'deno'
-			: !!process.env.NETLIFY
-			? 'netlify'
-			: !!process.env.VERCEL
-			? 'vercel'
-			: 'node',
 		...options,
 	};
 
@@ -38,89 +30,94 @@ export function edgekit(options) {
 	let vite_config;
 
 	/** @type {string} */
-	let ec;
+	let entry_client_filename;
 
-	/** @type {Record<string, string>} */
-	const client_input = {};
+	/** @type {string} */
+	let entry_server_filename;
 
 	return {
 		name: 'vite-plugin-edgekit',
 
-		config({ build, publicDir, root = process.cwd() }) {
-			const ssr = !!build?.ssr;
-			const dist = path.posix.join(
-				build?.outDir || 'dist',
-				ssr ? 'server' : 'client',
-			);
-			const namespace = build?.assetsDir || '_edk';
+		config({ build, root = process.cwd() }, { command }) {
+			opts.entry_client = get_entry(path.resolve(root, opts.entry_client));
+			opts.entry_server = get_entry(path.resolve(root, opts.entry_server));
 
-			if (!ssr) {
-				opts.entry_client = get_entry(path.resolve(root, opts.entry_client));
-				ec = path
-					.basename(opts.entry_client)
-					.replace(path.extname(opts.entry_client), '');
-				client_input.__edgekit_html__ = 'index.html';
-				client_input[ec] = opts.entry_client;
-			} else {
-				opts.entry_server = get_entry(path.resolve(root, opts.entry_server));
-			}
+			if (command === 'build') {
+				const ssr = !!build?.ssr;
 
-			return {
-				appType: 'custom',
-				base: './', // Vite resolves to `/` in ssr and dev
+				if (ssr) {
+					entry_server_filename = path
+						.basename(opts.entry_server)
+						.replace(path.extname(opts.entry_server), '');
 
-				build: {
-					assetsDir: namespace,
-					manifest: ssr ? false : 'manifest.json',
-					ssrManifest: ssr ? false : 'ssr-manifest.json',
-					outDir: dist,
-					polyfillModulePreload: false,
-					rollupOptions: {
-						input: ssr
-							? opts.runtime !== 'node'
-								? path.join(_dirname, opts.runtime, 'deploy')
-								: { main: opts.entry_server }
-							: client_input,
-						output: {
-							entryFileNames: ssr
-								? `[name].js`
-								: path.posix.join(namespace, `[name]-[hash].js`),
-							chunkFileNames: ssr
-								? `chunks/[name].js`
-								: path.posix.join(namespace, `c/[name]-[hash].js`), // c for chunks
-							assetFileNames: path.posix.join(
-								namespace,
-								`a/[name]-[hash].[ext]`, // a for assets
-							),
+					return {
+						publicDir: false,
+						build: {
+							assetsDir: 'chunks',
+							outDir: '.node',
+							rollupOptions: {
+								input: opts.entry_server,
+							},
 						},
-						onwarn(warning, warn) {
-							if (!warning.message.includes('__edgekit_html__')) {
-								warn(warning);
-							}
+						define: {
+							'typeof window': '"undefined"',
+							'typeof document': '"undefined"',
+						},
+						resolve: {
+							alias: {
+								'edgekit:entry-server': opts.entry_server,
+								'edgekit:manifest': path.resolve(root, EDGEKIT_MANIFEST),
+							},
+						},
+					};
+				} else {
+					entry_client_filename = path
+						.basename(opts.entry_client)
+						.replace(path.extname(opts.entry_client), '');
+					const assetsDir = build?.assetsDir || '_edk';
+
+					return {
+						base: './',
+						build: {
+							assetsDir,
+							rollupOptions: {
+								input: {
+									__edgekit_html__: 'index.html',
+									[entry_client_filename]: opts.entry_client,
+								},
+								output: {
+									entryFileNames: path.posix.join(
+										assetsDir,
+										`[name]-[hash].js`,
+									),
+									chunkFileNames: path.posix.join(
+										assetsDir,
+										`c/[name]-[hash].js`, // c for chunks
+									),
+									assetFileNames: path.posix.join(
+										assetsDir,
+										`a/[name]-[hash].[ext]`, // a for assets
+									),
+								},
+								onwarn(warning, warn) {
+									if (!warning.message.includes('__edgekit_html__')) {
+										warn(warning);
+									}
+								},
+							},
+						},
+					};
+				}
+			} else {
+				return {
+					appType: 'custom',
+					build: {
+						rollupOptions: {
+							input: opts.entry_client,
 						},
 					},
-				},
-
-				define: ssr
-					? { 'typeof window': '"undefined"', 'typeof document': '"undefined"' }
-					: undefined,
-
-				publicDir: ssr ? false : publicDir,
-
-				resolve: {
-					alias: ssr
-						? {
-								'edgekit:entry-server': opts.entry_server,
-								'edgekit:manifest': path.join(dist, '../.vite/manifest.js'),
-						  }
-						: undefined,
-				},
-
-				ssr: {
-					target: opts.runtime === 'node' ? 'node' : 'webworker',
-					noExternal: opts.runtime !== 'node' ? true : [],
-				},
-			};
+				};
+			}
 		},
 
 		configResolved(config) {
@@ -179,11 +176,10 @@ export function edgekit(options) {
 		async configurePreviewServer(server) {
 			install_polyfills();
 
-			const entry_server = path.join(
-				vite_config.build.outDir,
-				'../server/main.js', // TODO: avoid this hardcode
+			const { server_main } = await import(
+				pathToFileURL(path.resolve(vite_config.root, EDGEKIT_MANIFEST)).href
 			);
-			const { handler } = await import(pathToFileURL(entry_server).href);
+			const { handler } = await import(pathToFileURL(server_main).href);
 
 			return () => {
 				server.middlewares.use(async (req, res) => {
@@ -230,35 +226,47 @@ export function edgekit(options) {
 		generateBundle: {
 			order: 'post',
 			handler(_, bundle) {
-				if (!vite_config.build.ssr) {
-					for (const k in bundle) {
-						const val = bundle[k];
+				mkdirp(path.resolve(vite_config.root, DOT_EDGEKIT));
 
-						if (val.type === 'asset') {
-							if (vite_config.build.manifest === val.fileName) {
-								val.fileName = path.join('../.vite', val.fileName);
-							}
+				for (const k in bundle) {
+					const val = bundle[k];
 
-							if (val.fileName === 'index.html') {
-								template = /** @type {string} */ (val.source);
-								delete bundle[k];
-							}
+					if (vite_config.build.ssr) {
+						if (val.name === entry_server_filename) {
+							fs.appendFileSync(
+								path.resolve(vite_config.root, EDGEKIT_MANIFEST),
+								`\nexport const server_main = ${JSON.stringify(
+									path.resolve(
+										vite_config.root,
+										vite_config.build.outDir,
+										val.fileName,
+									),
+								)};`,
+								'utf-8',
+							);
+						}
+					} else {
+						if (val.name === entry_client_filename) {
+							entry_client_filename = val.fileName;
 						}
 
-						if (val.name === ec) {
-							ec = val.fileName;
+						if (val.type === 'asset' && val.fileName === 'index.html') {
+							template = /** @type {string} */ (val.source);
+							delete bundle[k];
 						}
 					}
+				}
 
-					bundle['_edgekit_manifest'] = {
-						type: 'asset',
-						fileName: '../.vite/manifest.js',
-						source: stringify_manifest(
+				if (!vite_config.build.ssr) {
+					fs.writeFileSync(
+						path.resolve(vite_config.root, EDGEKIT_MANIFEST),
+						stringify_manifest(
 							template,
 							vite_config.build.assetsDir,
-							ec,
+							entry_client_filename,
 						),
-					};
+						'utf-8',
+					);
 				}
 			},
 		},
