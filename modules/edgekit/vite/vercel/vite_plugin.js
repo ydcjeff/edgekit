@@ -58,11 +58,12 @@ export function edgekit_vercel() {
 							version: 3,
 							routes: [
 								{
-									src: '/' + vite_config.build.assetsDir + '/*',
+									src: '/' + vite_config.build.assetsDir + '/.+',
 									headers: {
 										'cache-control': 'public, immutable, max-age=31536000',
 									},
 								},
+								{ handle: 'filesystem' },
 								{
 									src: '/.*',
 									dest: '/main',
