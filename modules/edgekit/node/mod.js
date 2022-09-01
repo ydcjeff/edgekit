@@ -1,6 +1,5 @@
 // from https://github.com/sveltejs/kit/blob/master/packages/kit/src/node/index.js
 import { webcrypto as crypto } from 'node:crypto';
-import { URLPattern } from 'urlpattern-polyfill/urlpattern';
 
 /** @param {import('http').IncomingMessage} req */
 function get_raw_body(req) {
@@ -103,7 +102,6 @@ export async function set_response(res, response) {
 
 const polyfills = {
 	crypto,
-	URLPattern,
 };
 
 export function install_polyfills() {
