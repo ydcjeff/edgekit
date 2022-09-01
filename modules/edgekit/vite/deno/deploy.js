@@ -1,4 +1,4 @@
-import { handler } from 'edgekit:entry-server';
+import { respond } from 'edgekit:entry-server';
 import { manifest } from 'edgekit:manifest';
 import * as path from 'https://deno.land/std@0.152.0/path/mod.ts';
 import { serve } from 'https://deno.land/std@0.152.0/http/server.ts';
@@ -21,5 +21,5 @@ serve((request, conn_info) => {
 		);
 	}
 
-	return handler({ request, url, platform: { conn_info } });
+	return respond({ request, url, platform: { conn_info } });
 });

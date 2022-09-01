@@ -16,8 +16,8 @@ const EDGEKIT_MANIFEST = DOT_EDGEKIT + 'manifest.mjs';
 export function edgekit(options) {
 	/** @type {Required<PluginOptions>} */
 	const opts = {
-		entry_client: './app/entry-client',
-		entry_server: './app/entry-server',
+		entry_client: 'app/entry-client',
+		entry_server: 'app/entry-server',
 		...options,
 	};
 
@@ -147,11 +147,11 @@ export function edgekit(options) {
 
 						const request = get_request(origin, req);
 
-						/** @type {import('edgekit').StartServerFn} */
-						const handler = (await server.ssrLoadModule(opts.entry_server))
-							.handler;
+						/** @type {import('../runtime/index').RequestHandler} */
+						const respond = (await server.ssrLoadModule(opts.entry_server))
+							.respond;
 
-						const resp = await handler({
+						const resp = await respond({
 							request,
 							url: new URL(request.url),
 							seg: {},
@@ -176,7 +176,8 @@ export function edgekit(options) {
 			const { server_main } = await import(
 				pathToFileURL(path.resolve(vite_config.root, EDGEKIT_MANIFEST)).href
 			);
-			const { handler } = await import(pathToFileURL(server_main).href);
+			/** @type {import('../runtime/index').RequestHandler} */
+			const respond = (await import(pathToFileURL(server_main).href)).respond;
 
 			return () => {
 				server.middlewares.use(async (req, res) => {
@@ -186,7 +187,7 @@ export function edgekit(options) {
 						const origin = protocol + '://' + req.headers.host;
 
 						const request = get_request(origin, req);
-						const resp = await handler({
+						const resp = await respond({
 							request,
 							url: new URL(request.url),
 							seg: {},

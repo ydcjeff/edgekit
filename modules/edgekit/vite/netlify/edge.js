@@ -1,4 +1,4 @@
-import { handler } from 'edgekit:entry-server';
+import { respond } from 'edgekit:entry-server';
 import { manifest } from 'edgekit:manifest';
 
 export default async function (request, context) {
@@ -8,5 +8,5 @@ export default async function (request, context) {
 		return context.next();
 	}
 
-	return await handler({ request, url, platform: { context } });
+	return await respond({ request, url, platform: { context } });
 }

@@ -49,30 +49,16 @@ export type StartClientFn = (
 ) => void;
 
 /**
- * The handler interface of `start_server` function.
+ * The server module with the named exports of HTTP methods as functions.
  */
-export type StartServerFn = (
-	event: RequestEvent,
-	mod?: EndpointModule,
-) => Awaitable<Response>;
-
-/**
- * The endpoint module with the named exports of HTTP methods as functions.
- */
-export interface EndpointModule {
+export interface ServerModule {
 	[method: string]: RequestHandler;
 }
 
 /**
- * The interface of functions in endpoint module.
+ * The interface of functions in server module.
  */
 export type RequestHandler = (event: RequestEvent) => Awaitable<Response>;
-
-export interface EndpointRoute {
-	pathname: string;
-	mod: () => Promise<EndpointModule>;
-	children?: EndpointRoute[];
-}
 
 /**
  * Platform specific context object. Provide platform specific context to enable

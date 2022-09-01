@@ -4,7 +4,7 @@ import { manifest } from 'edgekit:manifest';
 import { renderToString } from 'vue/server-renderer';
 import { create_uni_app } from './app.js';
 
-export const handler: RequestHandler = async (event) => {
+export const respond: RequestHandler = async (event) => {
 	// create vue on server side
 	const [app, router, head_client] = create_uni_app();
 

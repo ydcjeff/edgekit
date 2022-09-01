@@ -1,5 +1,5 @@
 declare module 'edgekit:entry-server' {
-	export const handler: import('./index').RequestHandler;
+	export const respond: import('./index').RequestHandler;
 }
 
 declare module 'edgekit:manifest' {

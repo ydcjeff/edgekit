@@ -1,6 +1,6 @@
+import { fnv1a } from './hash.js';
 import * as http_status from './http_status.js';
 import * as http_status_text from './http_status_text.js';
-import { fnv1a } from './hash.js';
 import { valid_id } from './utils.js';
 
 /**
@@ -63,7 +63,7 @@ export function respond_html({
  * Respond the request that requests the data from endpoint.
  *
  * @param {import('./index').RequestEvent} ev
- * @param {import('./index').EndpointModule} mod
+ * @param {import('./index').ServerModule} mod
  */
 export async function respond_data(ev, mod) {
 	const method = ev.request.method;
