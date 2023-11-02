@@ -3,28 +3,24 @@
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
-	"prettier": "@ydcjeff/configs/prettier",
 	"devDependencies": {
-		"@sveltejs/vite-plugin-svelte": "1.0.2",
-		"@types/node": "18.7.14",
-		"@vitejs/plugin-vue": "3.0.3",
-		"@vueuse/head": "0.7.9",
-		"@ydcjeff/configs": "0.4.13",
+		"@netlify/edge-functions": "2.2.0",
+		"@playwright/test": "1.39.0",
+		"@types/node": "20.8.10",
+		"@vitejs/plugin-vue": "4.4.0",
+		"dprint": "0.42.5",
 		"edgekit": "workspace:*",
-		"prettier": "2.7.1",
-		"prettier-plugin-svelte": "2.7.0",
-		"svelte": "3.49.0",
-		"svelte-ruta": "0.0.6",
-		"vite": "3.1.0-beta.1",
-		"vite-plugin-inspect": "0.6.0",
-		"vitest": "0.22.1",
-		"vue": "3.2.37",
-		"vue-router": "4.1.5"
+		"typescript": "5.2.2",
+		"vite": "4.5.0",
+		"vitest": "0.34.6",
+		"vue": "3.3.7",
+		"vue-bundle-renderer": "2.0.0",
+		"vue-router": "4.2.5"
 	},
 	"scripts": {
-		"test-unit": "vitest --dir modules",
-		"fmt": "prettier -w --ignore-unknown --ignore-path .gitignore --plugin prettier-plugin-svelte .",
-		"fmt-check": "prettier -c --ignore-unknown --ignore-path .gitignore --plugin prettier-plugin-svelte .",
+		"test-unit": "vitest --dir edgekit",
+		"fmt": "dprint fmt",
+		"fmt-check": "dprint check",
 		"prepare": "git config core.hooksPath .githooks"
 	}
 }

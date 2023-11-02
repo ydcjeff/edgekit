@@ -1,6 +1,0 @@
-{
-	"files.autoSave": "onFocusChange",
-	"editor.codeActionsOnSave": {
-		"source.organizeImports": true
-	}
-}

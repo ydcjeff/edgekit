@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache-dependency-path: '**/package.json'
+          cache-dependency-path: "**/package.json"
 
       - run: pnpm i
       - run: pnpm run test-unit

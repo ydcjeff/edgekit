@@ -1,0 +1,30 @@
+{
+	"name": "edgekit",
+	"version": "0.1.5",
+	"sideEffects": false,
+	"type": "module",
+	"license": "MIT",
+	"homepage": "https://edgekit.deno.dev",
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/alpineland/edgekit"
+	},
+	"files": [
+		"!_testdata",
+		"*.js",
+		"!*.test.js"
+	],
+	"exports": {
+		".": {
+			"types": "./runtime/index.d.ts",
+			"import": "./runtime/mod.js"
+		},
+		"./vite": {
+			"types": "./vite/index.d.ts",
+			"import": "./vite/mod.js"
+		}
+	}
+}

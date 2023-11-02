@@ -3,16 +3,19 @@
 // This script requires `chlog` to be installed for generating changelog.
 // chlog: https://github.com/ydcjeff/chlog
 
-import * as path from 'https://deno.land/std@0.152.0/path/mod.ts';
-import { cyan } from 'https://deno.land/std@0.152.0/fmt/colors.ts';
+// @ts-expect-error Deno
+import * as path from 'https://deno.land/std@0.205.0/path/mod.ts';
+// @ts-expect-error Deno
+import { cyan } from 'https://deno.land/std@0.205.0/fmt/colors.ts';
 import {
 	inc,
 	type ReleaseType,
 	valid,
-} from 'https://deno.land/std@0.152.0/semver/mod.ts';
+	// @ts-expect-error Deno
+} from 'https://deno.land/std@0.205.0/semver/mod.ts';
 
 async function main() {
-	const modules = Array.from(Deno.readDirSync('./modules')).map((v) => v.name);
+	const modules = ['edgekit'];
 
 	const increments = [
 		'major',
@@ -26,6 +29,7 @@ async function main() {
 
 	const log = (s: string) => console.log(cyan(s));
 	const run = async (cmd: string[]) => {
+		// @ts-expect-error Deno
 		const p = Deno.run({
 			cmd,
 			stderr: 'inherit',
@@ -51,8 +55,10 @@ async function main() {
 
 	if (!module) return;
 
-	const mod_path = path.join(Deno.cwd(), 'modules', module);
+	// @ts-expect-error Deno
+	const mod_path = path.join(Deno.cwd(), /* 'modules', */ module);
 	const pkg_json_path = path.join(mod_path, 'package.json');
+	// @ts-expect-error Deno
 	const pkg = JSON.parse(Deno.readTextFileSync(pkg_json_path));
 
 	const incc = (i: string) => inc(pkg.version, i as ReleaseType)!;
@@ -117,13 +123,17 @@ async function main() {
 
 try {
 	main();
-} catch (e) {
+}
+catch (e) {
 	console.error(e);
+	// @ts-expect-error Deno
 	Deno.exit(1);
 }
 
 function update_version(path: string, version: string) {
+	// @ts-expect-error Deno
 	const pkg = JSON.parse(Deno.readTextFileSync(path));
 	pkg.version = version;
+	// @ts-expect-error Deno
 	Deno.writeTextFileSync(path, JSON.stringify(pkg, null, '\t') + '\n');
 }
