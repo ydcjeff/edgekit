@@ -21,8 +21,14 @@ const _dirname = path.dirname(fileURLToPath(import.meta.url));
  * @returns {import('vite').Plugin}
  */
 export function edgekit_netlify() {
+	const name = 'edgekit:netlify';
+
+	if (process.env.NETLIFY) {
+		return { name };
+	}
+
 	return {
-		name: 'edgekit:netlify',
+		name,
 		apply: is_server_build,
 
 		config() {

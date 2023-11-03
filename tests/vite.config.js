@@ -12,9 +12,9 @@ export default defineConfig({
 	plugins: [
 		vue(),
 		edgekit(),
-		// edgekit_deno(),
-		// edgekit_netlify(),
-		// edgekit_vercel(),
+		edgekit_deno(),
+		edgekit_netlify(),
+		edgekit_vercel(),
 	],
 	build: {
 		minify: false,

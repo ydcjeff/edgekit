@@ -12,8 +12,14 @@ export function edgekit_vercel() {
 	/** @type {import('vite').ResolvedConfig} */
 	let vite_config;
 
+	const name = 'edgekit:vercel';
+
+	if (!process.env.VERCEL) {
+		return { name };
+	}
+
 	return {
-		name: 'edgekit:vercel',
+		name,
 		apply: 'build',
 
 		config({ build }) {

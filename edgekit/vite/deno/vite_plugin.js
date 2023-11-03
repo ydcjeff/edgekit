@@ -10,8 +10,14 @@ const _dirname = path.dirname(fileURLToPath(import.meta.url));
  * @returns {import('vite').Plugin}
  */
 export function edgekit_deno() {
+	const name = 'edgekit:deno';
+
+	if (!process.env.DENO) {
+		return { name };
+	}
+
 	return {
-		name: 'edgekit:deno',
+		name,
 		apply: is_server_build,
 
 		config() {
