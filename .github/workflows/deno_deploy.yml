@@ -24,7 +24,7 @@ jobs:
           node-version: 20
 
       - run: pnpm i
-      - run: cd tests && pnpm build
+      - run: pnpm run --filter edgekit-test build
 
       - uses: denoland/deployctl@v1
         with:

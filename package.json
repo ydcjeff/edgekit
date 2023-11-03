@@ -4,6 +4,9 @@
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@8.10.2",
+	"engines": {
+		"node": ">=20.0.0"
+	},
 	"devDependencies": {
 		"@netlify/edge-functions": "2.2.0",
 		"@playwright/test": "1.39.0",
