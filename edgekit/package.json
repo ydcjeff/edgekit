@@ -13,9 +13,9 @@
 		"url": "https://github.com/alpineland/edgekit"
 	},
 	"files": [
-		"!_testdata",
-		"*.js",
-		"!*.test.js"
+		"**/*.js",
+		"!**/_testdata",
+		"!**/*.test.js"
 	],
 	"exports": {
 		".": {
