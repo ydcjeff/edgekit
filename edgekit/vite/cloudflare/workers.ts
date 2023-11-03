@@ -1,10 +1,8 @@
-import { respond } from 'edgekit:entry-server';
+import { handler } from 'edgekit:entry_server';
 
 // TODO: KV asset
 export default {
-	async fetch(request, env, context) {
-		const url = new URL(request.url);
-
-		return await respond({ request, url, platform: { env, context } });
+	async fetch(request: Request) {
+		return await handler(request);
 	},
 };

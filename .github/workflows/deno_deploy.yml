@@ -1,0 +1,34 @@
+name: Deno Deploy
+
+on: [push]
+
+env:
+  DENO: 1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - run: pnpm i
+      - run: cd tests
+      - run: pnpm build
+
+      - uses: denoland/deployctl@v1
+        with:
+          project: 'edgekit-test'
+          entrypoint: 'deno/main.js'
+          root: 'dist'
