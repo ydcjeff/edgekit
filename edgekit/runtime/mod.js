@@ -1,3 +1,4 @@
+import * as devalue from 'devalue';
 import { _, build_id } from 'edgekit:metadata';
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -24,7 +25,7 @@ export function start_client(fn) {
 	const tc = el.lastElementChild?.textContent;
 
 	/** @type {[boolean, unknown]} */
-	const injected = tc ? JSON.parse(tc) : [];
+	const injected = tc ? devalue.parse(tc) : [];
 
 	fn(el, ...injected);
 }
@@ -61,7 +62,7 @@ export function render_html({
 	const script = csr
 		? `<script type="module" async src="${entry}"></script>`
 			+ `<script type="application/json">`
-			+ JSON.stringify([csr, data])
+			+ devalue.stringify([csr, data])
 			+ `</script>`
 		: '';
 

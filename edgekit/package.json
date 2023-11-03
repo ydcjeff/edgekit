@@ -26,5 +26,8 @@
 			"types": "./vite/index.d.ts",
 			"import": "./vite/mod.js"
 		}
+	},
+	"dependencies": {
+		"devalue": "^4.3.2"
 	}
 }
