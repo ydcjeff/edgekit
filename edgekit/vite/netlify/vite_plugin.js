@@ -23,7 +23,7 @@ const _dirname = path.dirname(fileURLToPath(import.meta.url));
 export function edgekit_netlify() {
 	const name = 'edgekit:netlify';
 
-	if (process.env.NETLIFY) {
+	if (!process.env.NETLIFY) {
 		return { name };
 	}
 
