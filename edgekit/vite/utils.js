@@ -8,16 +8,19 @@ export { get_entry, is_server_build, mkdirp, stringify_metadata };
 function stringify_metadata({
 	assets_dir = '',
 	template = '',
-	entry_client = '',
+	entries = {
+		js: /** @type {string[]} */ ([]),
+		css: /** @type {string[]} */ ([]),
+	},
 } = {}) {
 	return (
 		`export const build_id = ${s(BUILD_ID)};\n`
 		+ `const t = ${s(template)};\n`
 		+ `export const _ = {
 		assets_dir: ${s(assets_dir)},
-		entry: ${s(entry_client)},
+		entries: ${s(entries)},
 		tmpl: ${tmpl},
-	};`
+	};\n`
 	);
 }
 

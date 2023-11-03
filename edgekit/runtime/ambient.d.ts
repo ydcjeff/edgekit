@@ -9,7 +9,10 @@ declare module 'edgekit:metadata' {
 	/** @internal */
 	export const _: {
 		assets_dir: string;
-		entry: string;
+		entries: {
+			js: string[];
+			css: string[];
+		};
 		tmpl(
 			body: string,
 			head: string,

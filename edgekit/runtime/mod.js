@@ -47,20 +47,26 @@ export function render_html({
 	csr = false,
 	data = null,
 }) {
-	let { entry, tmpl } = _;
+	const { entries, tmpl } = _;
+	const prefix = import.meta.env.PROD
+		? (new URL(url).pathname
+					.slice(BASE_URL.length)
+					.split('/')
+					.slice(2)
+					.map(() => '..')
+					.join('/') + '' || '.') + '/'
+		: '';
 
-	if (import.meta.env.PROD) {
-		const prefix = new URL(url).pathname
-			.slice(BASE_URL.length)
-			.split('/')
-			.slice(2)
-			.map(() => '..')
-			.join('/') || '.';
-		entry = `${prefix}/${entry}`;
-	}
+	const js_scripts = entries.js.map((js) =>
+		`<script type="module" async src="${prefix}${js}"></script>`
+	).join('\n');
+
+	const css_links =
+		entries.css.map((css) => `<link rel="stylesheet" href="${prefix}${css}">`)
+			.join('\n\t') + '\n';
 
 	const script = csr
-		? `<script type="module" async src="${entry}"></script>`
+		? js_scripts
 			+ `<script type="application/json">`
 			+ devalue.stringify([csr, data])
 			+ `</script>`
@@ -70,9 +76,14 @@ export function render_html({
 	body = `<div id="${build_id}">${body}${script}</div>`;
 
 	if (typeof head === 'string') {
-		return tmpl(body, head);
+		return tmpl(body, css_links + head);
 	}
-	return tmpl(body, head.headTags, head.htmlAttrs, head.bodyAttrs);
+	return tmpl(
+		body,
+		css_links + head.headTags,
+		head.htmlAttrs,
+		head.bodyAttrs,
+	);
 }
 
 /**

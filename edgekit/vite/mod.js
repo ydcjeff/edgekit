@@ -26,9 +26,6 @@ function edgekit() {
 	let vite_config;
 
 	/** @type {string} */
-	let entry_client_filename;
-
-	/** @type {string} */
 	let dot_edgekit;
 
 	/** @type {string} */
@@ -55,6 +52,7 @@ function edgekit() {
 				return {
 					publicDir: ssr ? false : publicDir,
 					build: {
+						manifest: ssr ? false : '.vite/manifest.json',
 						assetsDir,
 						outDir,
 						rollupOptions: {
@@ -195,7 +193,7 @@ function edgekit() {
 			// Exclude EdgeKit virtual modules in SSR build
 			if (!vite_config.build.ssr && id === '\0' + 'edgekit:metadata') {
 				return stringify_metadata({
-					entry_client: entry_client_file,
+					entries: { js: [entry_client_file], css: [] },
 					template,
 				});
 			}
@@ -204,52 +202,89 @@ function edgekit() {
 		generateBundle: {
 			order: 'post',
 			handler(_, bundle) {
-				mkdirp(dot_edgekit);
-
-				for (const k in bundle) {
-					const val = bundle[k];
-
-					if (vite_config.build.ssr) {
-						if (val.name === 'entry_server') {
-							fs.appendFileSync(
-								dot_edgekit_metadata,
-								`\nexport const entry_server_fp = ${
-									JSON.stringify(
-										path.resolve(
-											vite_config.root,
-											vite_config.build.outDir,
-											val.fileName,
-										),
-									)
-								}`,
-								'utf-8',
-							);
-						}
-					}
-					else {
-						if (val.name === 'entry_client') {
-							entry_client_filename = val.fileName;
-						}
-
-						if (val.type === 'asset' && val.fileName === 'index.html') {
-							template = /** @type {string} */ (val.source);
-							delete bundle[k];
-						}
-					}
-				}
-
 				if (!vite_config.build.ssr) {
-					fs.writeFileSync(
-						dot_edgekit_metadata,
-						stringify_metadata({
-							assets_dir: vite_config.build.assetsDir,
-							entry_client: entry_client_filename,
-							template,
-						}),
-						'utf-8',
-					);
+					for (const k in bundle) {
+						const chunk = bundle[k];
+						if (chunk.type === 'asset' && chunk.fileName === 'index.html') {
+							template = /** @type {string} */ (chunk.source);
+							delete bundle[k]; // remove index.html file
+						}
+					}
 				}
 			},
 		},
+
+		writeBundle(_, bundle) {
+			mkdirp(dot_edgekit);
+
+			if (vite_config.build.ssr) {
+				for (const k in bundle) {
+					const chunk = bundle[k];
+
+					if (chunk.name === 'entry_server') {
+						fs.appendFileSync(
+							dot_edgekit_metadata,
+							`export const entry_server_fp = ${
+								JSON.stringify(
+									path.resolve(
+										vite_config.root,
+										vite_config.build.outDir,
+										chunk.fileName,
+									),
+								)
+							};\n`,
+							'utf-8',
+						);
+					}
+				}
+			}
+			else {
+				const manifest = /** @type {ViteManifestChunk[]} */ (Object.values(
+					JSON.parse(fs.readFileSync(
+						path.join(
+							vite_config.build.outDir,
+							/** @type {string} */ (vite_config.build.manifest),
+						),
+						'utf-8',
+					)),
+				));
+
+				const entries = {
+					js: /** @type {string[]} */ ([]),
+					css: /** @type {string[]} */ ([]),
+				};
+
+				for (const entry of manifest) {
+					if (entry.isEntry) {
+						entries.js.push(entry.file);
+						if (entry.css?.length) {
+							entries.css.push(...entry.css);
+						}
+					}
+				}
+
+				fs.writeFileSync(
+					dot_edgekit_metadata,
+					stringify_metadata({
+						assets_dir: vite_config.build.assetsDir,
+						entries,
+						template,
+					}),
+					'utf-8',
+				);
+			}
+		},
 	};
 }
+
+/**
+ * @typedef ViteManifestChunk
+ * @property {string} [src]
+ * @property {string} file
+ * @property {string[]} [css]
+ * @property {string[]} [assets]
+ * @property {boolean} [isEntry]
+ * @property {boolean} [isDynamicEntry]
+ * @property {string[]} [imports]
+ * @property {string[]} [dynamicImports]
+ */
