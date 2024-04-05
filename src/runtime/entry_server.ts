@@ -1,3 +1,10 @@
+/**
+ * @module
+ *
+ * This module is a dummy module to make Deno happy. This module id is aliased
+ * in the `ezedge` Vite plugin.
+ */
+
 type MaybePromise<T> = T | Promise<T>;
 type _RequestHandler = (req: Request) => MaybePromise<Response>;
 type RequestHandler = RuntimeConfig extends {

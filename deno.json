@@ -10,7 +10,7 @@
 		"@ydcjeff/ezedge/entry_server": "./src/runtime/entry_server.ts"
 	},
 	"publish": {
-		"include": ["src", "deno.json"]
+		"include": ["src", "deno.json", "README.md"]
 	},
 	"compilerOptions": {
 		"lib": ["deno.window", "dom"]

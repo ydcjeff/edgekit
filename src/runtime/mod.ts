@@ -1,3 +1,9 @@
+/**
+ * @module
+ *
+ * This module contains the runtime helpers.
+ */
+
 /// <reference types="vite/client" />
 
 import * as devalue from 'devalue';

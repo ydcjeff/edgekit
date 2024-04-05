@@ -1,3 +1,22 @@
+/**
+ * @module
+ *
+ * This module contains EZedge related Vite plugins.
+ *
+ * ```ts
+ * // vite.config.ts
+ * import { ezedge, ezedge_deno, ezedge_netlify } from '@ydcjeff/ezedge/vite';
+ *
+ * export default defineConfig({
+ *   plugins: [
+ *     ezedge(),
+ *     ezedge_deno(), // for Deno Deploy
+ *     ezedge_netlify(), // for Netlify Edge Functions
+ *   ],
+ * });
+ * ```
+ */
+
 import { createMiddleware } from '@hattip/adapter-node';
 import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
