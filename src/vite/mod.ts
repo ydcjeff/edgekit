@@ -15,13 +15,13 @@ export { ezedge_netlify } from './netlify/vite_plugin.ts';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ezedge_runtime_path = path.join(dirname, '../runtime/mod');
+const generated_file = path.join(dirname, 'ezedge.gen.js');
 
 /** A EZedge Vite plugin. */
 export function ezedge(): Plugin {
 	let entry_client_file = '';
 	let entry_server_file = '';
 	let template = '';
-	let generated_file = '';
 	let vite_config: ResolvedConfig;
 
 	return {
@@ -58,7 +58,6 @@ export function ezedge(): Plugin {
 
 		configResolved(config) {
 			vite_config = config;
-			generated_file = config.cacheDir + `/ezedge.gen.js`;
 
 			if (config.command === 'serve') {
 				template = fs.readFileSync(config.root + '/index.html', 'utf-8');
@@ -82,12 +81,13 @@ export function ezedge(): Plugin {
 			const { handler } = await import(
 				path.join(vite_config.root, vite_config.build.outDir, 'entry_server.js')
 			);
-			return () =>
+			return () => {
 				server.middlewares.use(
-					createMiddleware(async ({ request }) => {
-						return await handler(request);
+					createMiddleware(({ request }) => {
+						return handler(request);
 					}),
 				);
+			};
 		},
 
 		load(id) {
