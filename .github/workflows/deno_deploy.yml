@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: lts
+          node-version: lts/*
 
       - run: pnpm i
       - run: pnpm run build
