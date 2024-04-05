@@ -38,17 +38,19 @@ const generated_file = path.join(dirname, 'ezedge.gen.js');
 
 /** A EZedge Vite plugin. */
 export function ezedge(): Plugin {
-	let entry_client_file = '';
-	let entry_server_file = '';
+	let entry_client_path = '';
+	let entry_server_path = '';
+	let template_path = '';
 	let template = '';
 	let vite_config: ResolvedConfig;
 
 	return {
 		name: 'ezedge',
 		config({ build, root = process.cwd() }, { isSsrBuild, isPreview }) {
-			entry_client_file = get_entry(path.resolve(root, 'src/entry_client'), !0);
-			entry_server_file = get_entry(path.resolve(root, 'src/entry_server'));
-			if (!entry_server_file) return;
+			entry_server_path = get_entry(path.join(root, 'src/entry_server'));
+			if (!entry_server_path) return;
+			entry_client_path = get_entry(path.join(root, 'src/entry_client'), !0);
+			template_path = path.join(root, 'index.html');
 
 			return {
 				appType: 'custom',
@@ -60,16 +62,16 @@ export function ezedge(): Plugin {
 					outDir: isSsrBuild || isPreview ? 'dist/server' : 'dist/client',
 					rollupOptions: {
 						input: isSsrBuild
-							? entry_server_file
+							? entry_server_path
 							: {
-									__ezedge_html__: path.resolve(root, 'index.html'),
-									entry_client: entry_client_file,
+									__ezedge_html__: template_path,
+									entry_client: entry_client_path,
 								},
 					},
 				},
 				resolve: {
 					alias: {
-						'@ydcjeff/ezedge/entry_server': entry_server_file,
+						'@ydcjeff/ezedge/entry_server': entry_server_path,
 					},
 				},
 			};
@@ -78,17 +80,17 @@ export function ezedge(): Plugin {
 		configResolved(config) {
 			vite_config = config;
 
-			if (config.command === 'serve') {
-				template = fs.readFileSync(config.root + '/index.html', 'utf-8');
+			if (config.command === 'serve' && entry_server_path) {
+				template = fs.readFileSync(template_path, 'utf-8');
 			}
 		},
 
 		async configureServer(server) {
-			if (!entry_server_file) return;
+			if (!entry_server_path) return;
 			const runtime = await createViteRuntime(server);
 			const middleware = createMiddleware(async ({ request }) => {
 				template = await server.transformIndexHtml(request.url, template);
-				const { handler } = await runtime.executeEntrypoint(entry_server_file!);
+				const { handler } = await runtime.executeEntrypoint(entry_server_path!);
 				return handler(request);
 			});
 
@@ -96,7 +98,7 @@ export function ezedge(): Plugin {
 		},
 
 		async configurePreviewServer(server) {
-			if (!entry_server_file) return;
+			if (!entry_server_path) return;
 			const { handler } = await import(
 				path.join(vite_config.root, vite_config.build.outDir, 'entry_server.js')
 			);
@@ -110,11 +112,15 @@ export function ezedge(): Plugin {
 		},
 
 		load(id) {
-			if (vite_config.command === 'serve' && id.includes(generated_file)) {
+			if (
+				entry_server_path &&
+				vite_config.command === 'serve' &&
+				id.includes(generated_file)
+			) {
 				return stringify_metadata({
 					assets_dir: vite_config.build.assetsDir,
 					base: vite_config.base,
-					entry_clients: [path.join(vite_config.base, entry_client_file)],
+					entry_clients: [path.join(vite_config.base, entry_client_path)],
 					preloads: {},
 					template,
 				});
@@ -122,7 +128,7 @@ export function ezedge(): Plugin {
 		},
 
 		transform(code, id) {
-			if (entry_server_file && id.includes(entry_server_file)) {
+			if (entry_server_path && id.includes(entry_server_path)) {
 				return `import '${generated_file}';\n${code}`;
 			}
 		},
@@ -130,7 +136,7 @@ export function ezedge(): Plugin {
 		generateBundle: {
 			order: 'post',
 			handler(_, bundle) {
-				if (!vite_config.build.ssr) {
+				if (!entry_server_path && !vite_config.build.ssr) {
 					for (const k in bundle) {
 						const chunk = bundle[k];
 						if (
@@ -147,7 +153,7 @@ export function ezedge(): Plugin {
 		},
 
 		writeBundle() {
-			if (!vite_config.build.ssr) {
+			if (!entry_server_path && !vite_config.build.ssr) {
 				const manifest = Object.values<ManifestChunk>(
 					JSON.parse(
 						fs.readFileSync(
