@@ -96,7 +96,7 @@ export function render_html({
  * Serialise the Content Security Policy Directives to be directly used as
  * header value.
  */
-export function serialise_csp(csp: CSPDirectives) {
+export function serialise_csp(csp: CSPDirectives): string {
 	csp = {
 		'default-src': [`'self'`],
 		...csp,

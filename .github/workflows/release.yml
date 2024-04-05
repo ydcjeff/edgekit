@@ -15,4 +15,4 @@ jobs:
         with:
           deno-version: v1.x
 
-      - run: deno publish --no-check
+      - run: deno publish --no-check --allow-dirty
