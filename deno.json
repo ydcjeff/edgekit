@@ -1,6 +1,6 @@
 {
 	"name": "@ydcjeff/ezedge",
-	"version": "0.0.8",
+	"version": "0.0.10",
 	"exports": {
 		".": "./src/runtime/mod.ts",
 		"./vite": "./src/vite/mod.ts",

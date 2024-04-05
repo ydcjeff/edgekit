@@ -47,10 +47,10 @@ export function ezedge(): Plugin {
 	return {
 		name: 'ezedge',
 		config({ build, root = process.cwd() }, { isSsrBuild, isPreview }) {
-			entry_server_path = get_entry(path.join(root, 'src/entry_server'));
+			entry_server_path = get_entry(path.resolve(root, 'src/entry_server'));
 			if (!entry_server_path) return;
-			entry_client_path = get_entry(path.join(root, 'src/entry_client'), !0);
-			template_path = path.join(root, 'index.html');
+			entry_client_path = get_entry(path.resolve(root, 'src/entry_client'), !0);
+			template_path = path.resolve(root, 'index.html');
 
 			return {
 				appType: 'custom',
