@@ -20,7 +20,5 @@ dist
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
-
-# EdgeKit server build output
-.netlify
-.vercel
+deno.lock
+bun.lockb

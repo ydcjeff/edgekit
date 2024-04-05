@@ -23,7 +23,7 @@ export function create_uni_app(hydrate: boolean) {
 				component: HomeView,
 			},
 			{
-				path: '/nested/about',
+				path: '/about',
 				name: 'about',
 				component: () => import('./views/AboutView.vue'),
 			},

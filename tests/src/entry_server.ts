@@ -1,5 +1,5 @@
-import { render_html } from 'edgekit';
-import { create_uni_app } from './main';
+import { render_html } from '../../src/runtime/mod.ts';
+import { create_uni_app } from './main.ts';
 
 import { renderToString } from 'vue/server-renderer';
 

@@ -21,13 +21,13 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: lts
 
       - run: pnpm i
-      - run: pnpm run --filter edgekit-test build
+      - run: pnpm run build
 
       - uses: denoland/deployctl@v1
         with:
-          project: 'edgekit-test'
-          entrypoint: 'deno/main.js'
+          project: 'ezedge-test'
+          entrypoint: 'server/main.js'
           root: 'tests/dist'

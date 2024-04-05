@@ -1,30 +1,21 @@
 {
-	"name": "edgekit-monorepo",
-	"version": "0.0.0",
-	"private": true,
 	"type": "module",
-	"packageManager": "pnpm@8.10.2",
-	"engines": {
-		"node": "~20.9.0"
-	},
-	"devDependencies": {
-		"@netlify/edge-functions": "2.2.0",
-		"@playwright/test": "1.39.0",
-		"@types/node": "20.8.10",
-		"@vitejs/plugin-vue": "4.4.0",
-		"dprint": "0.42.5",
-		"edgekit": "workspace:*",
-		"typescript": "5.2.2",
-		"vite": "5.0.0-beta.15",
-		"vitest": "0.34.6",
-		"vue": "3.3.7",
-		"vue-router": "4.2.5",
-		"vue-tsc": "1.8.22"
+	"dependencies": {
+		"@hattip/adapter-node": "^0.0.45",
+		"@netlify/edge-functions": "^2.3.1",
+		"@vitejs/plugin-vue": "^5.0.4",
+		"devalue": "^4.3.2",
+		"prettier": "^3.2.5",
+		"vite": "^5.2.8",
+		"vite-plugin-inspect": "^0.8.3",
+		"vue": "^3.4.21",
+		"vue-router": "^4.3.0"
 	},
 	"scripts": {
-		"test-unit": "vitest --dir edgekit",
-		"fmt": "dprint fmt",
-		"fmt-check": "dprint check",
-		"prepare": "git config core.hooksPath .githooks"
+		"dev": "vite tests",
+		"build": "vite build tests && vite build tests --ssr",
+		"preview": "vite preview tests",
+		"fmt": "prettier --ignore-path .gitignore --write .",
+		"fmt-check": "prettier --ignore-path .gitignore --check ."
 	}
 }

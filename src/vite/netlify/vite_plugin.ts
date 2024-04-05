@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { is_server_build } from '../utils.js';
+import type { Plugin } from 'vite';
 
 const NETLIFY_EDGE_FN_DIR = '.netlify/edge-functions';
 const NETLIFY_EDGE_FN_MANIFEST = {
@@ -13,15 +13,13 @@ const NETLIFY_EDGE_FN_MANIFEST = {
 	],
 };
 
-const _dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * A Vite plugin that outputs Netlify Edge Functions.
- *
- * @returns {import('vite').Plugin}
+ * A EZedge Vite plugin for Netlify Edge Functions.
  */
-export function edgekit_netlify() {
-	const name = 'edgekit:netlify';
+export function ezedge_netlify(): Plugin {
+	const name = 'ezedge:netlify';
 
 	if (!process.env.NETLIFY) {
 		return { name };
@@ -29,16 +27,14 @@ export function edgekit_netlify() {
 
 	return {
 		name,
-		apply: is_server_build,
+		apply: (_, { isSsrBuild }) => !!isSsrBuild,
 
 		config() {
 			return {
 				build: {
 					outDir: NETLIFY_EDGE_FN_DIR,
 					rollupOptions: {
-						input: {
-							main: path.resolve(_dirname, 'edge.js'),
-						},
+						input: { main: path.join(dirname, 'edge.ts') },
 						output: {
 							inlineDynamicImports: true,
 						},

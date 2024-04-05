@@ -8,11 +8,11 @@ const _dirname = path.dirname(fileURLToPath(import.meta.url));
  *
  * @returns {import('vite').Plugin}
  */
-export function edgekit_vercel() {
+export function ezedge_vercel() {
 	/** @type {import('vite').ResolvedConfig} */
 	let vite_config;
 
-	const name = 'edgekit:vercel';
+	const name = 'ezedge:vercel';
 
 	if (!process.env.VERCEL) {
 		return { name };
@@ -32,13 +32,13 @@ export function edgekit_vercel() {
 					rollupOptions: {
 						input: ssr
 							? {
-								'functions/main.func/main': path.resolve(_dirname, 'edge.js'),
-							}
+									'functions/main.func/main': path.resolve(_dirname, 'edge.js'),
+								}
 							: undefined,
 						output: ssr
 							? {
-								inlineDynamicImports: true,
-							}
+									inlineDynamicImports: true,
+								}
 							: undefined,
 					},
 				},
