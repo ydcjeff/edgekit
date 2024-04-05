@@ -136,7 +136,7 @@ export function ezedge(): Plugin {
 		generateBundle: {
 			order: 'post',
 			handler(_, bundle) {
-				if (!entry_server_path && !vite_config.build.ssr) {
+				if (entry_server_path && !vite_config.build.ssr) {
 					for (const k in bundle) {
 						const chunk = bundle[k];
 						if (
@@ -153,7 +153,7 @@ export function ezedge(): Plugin {
 		},
 
 		writeBundle() {
-			if (!entry_server_path && !vite_config.build.ssr) {
+			if (entry_server_path && !vite_config.build.ssr) {
 				const manifest = Object.values<ManifestChunk>(
 					JSON.parse(
 						fs.readFileSync(
@@ -179,7 +179,7 @@ export function ezedge(): Plugin {
 				const ssr_manifest: Record<string, string[]> = {};
 				for (const [id, files] of Object.entries(_ssr_manifest)) {
 					if (files.length) {
-						ssr_manifest[id] = files;
+						ssr_manifest[id.toLowerCase()] = files;
 					}
 				}
 

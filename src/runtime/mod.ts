@@ -71,7 +71,7 @@ export function render_html({
 	let link_tags = '';
 	if (pathname !== '/') {
 		for (const key in preloads) {
-			if (key.includes(pathname.slice(base.length + 1))) {
+			if (key.includes(pathname.slice(base.length))) {
 				link_tags += gen_link_tags(preloads[key]!, seen);
 			}
 		}
