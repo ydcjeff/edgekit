@@ -1,6 +1,6 @@
 {
 	"name": "@ydcjeff/ezedge",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"exports": {
 		".": "./src/runtime/mod.ts",
 		"./vite": "./src/vite/mod.ts",
@@ -10,6 +10,9 @@
 		"@ydcjeff/ezedge/entry_server": "./src/runtime/entry_server.ts"
 	},
 	"publish": {
-		"include": ["src"]
+		"include": ["src", "deno.json"]
+	},
+	"compilerOptions": {
+		"lib": ["deno.window", "dom"]
 	}
 }
